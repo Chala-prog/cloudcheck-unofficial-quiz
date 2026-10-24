@@ -4,7 +4,7 @@
 
 **Hackathon problem statement:** 📝 Practice & Assessment: Smart Quiz Builder (with a 📊 Readiness Tracker)
 
-**Live demo:** https://YOUR-GITHUB-USERNAME.github.io/cloudcheck-unofficial-quiz/
+**Live demo:** https://chala-prog.github.io/cloudcheck-unofficial-quiz/
 *(also available as a Claude artifact: https://claude.ai/artifact/A6kj6P485n2o9cugnkDTnk)*
 
 ## The problem
