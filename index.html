@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CloudCheck: unofficial cloud fundamentals practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f4;--surface:#fff;--ink:#12263a;--mute:#5a6b7a;--line:#cfdadf;--acc:#0e8f80;--acc-ink:#fff;--ok:#16794c;--okbg:#e0f3ea;--bad:#a8341f;--badbg:#fbe6e1;--warn:#9a6200;--warnbg:#fdf0d5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b26;--surface:#172737;--ink:#e6eef3;--mute:#91a4b3;--line:#2b4155;--acc:#3cc9b6;--acc-ink:#06201c;--ok:#6fdba5;--okbg:#14382a;--bad:#ff9b85;--badbg:#401e18;--warn:#f2c26b;--warnbg:#3b2d10}}
+:root[data-theme="dark"]{--bg:#0f1b26;--surface:#172737;--ink:#e6eef3;--mute:#91a4b3;--line:#2b4155;--acc:#3cc9b6;--acc-ink:#06201c;--ok:#6fdba5;--okbg:#14382a;--bad:#ff9b85;--badbg:#401e18;--warn:#f2c26b;--warnbg:#3b2d10}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:2rem;font-weight:700}
+h2{font-size:1.35rem;margin-bottom:10px}
+.tag{display:inline-block;border:1px solid var(--warn);background:var(--warnbg);color:var(--warn);border-radius:6px;padding:2px 8px;font-size:.8rem;margin-top:8px}
+nav{display:flex;gap:6px;margin:20px 0 16px;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:8px;padding:11px 20px;font:inherit;font-weight:700;cursor:pointer}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.opt.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-left:4px solid var(--acc);background:var(--bg);border-radius:0 8px 8px 0}
+.meta{color:var(--mute);font-size:.9rem;display:flex;justify-content:space-between;margin-bottom:10px}
+.progress{height:6px;background:var(--line);border-radius:3px;margin-bottom:16px}
+.progress i{display:block;height:100%;background:var(--acc);border-radius:3px}
+.row{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;margin:10px 0}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%}
+.big{font:700 3rem/1 "Bricolage Grotesque",system-ui,sans-serif}
+.status{display:inline-block;padding:3px 10px;border-radius:6px;font-weight:700;font-size:.9rem}
+.hist{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:8px}
+.hist i{flex:1;background:var(--acc);border-radius:3px 3px 0 0;min-height:3px}
+@media (max-width:520px){.row{grid-template-columns:1fr 44px}.row .bar{grid-column:1/3;grid-row:2}h1{font-size:1.6rem}}
+@media (prefers-reduced-motion:no-preference){.progress i,.bar i{transition:width .4s}}
+</style></head>
+<body><main>
+<h1>CloudCheck</h1>
+<p style="color:var(--mute);margin:6px 0 0">Practice cloud fundamentals, read why each answer works, and see when you’re ready.</p>
+<span class="tag">Unofficial study tool · original practice questions · not affiliated with any cloud vendor</span>
+<nav role="tablist"><button role="tab" id="t1" aria-selected="true">Practice</button><button role="tab" id="t2" aria-selected="false">Readiness</button></nav>
+<section id="practice" class="panel"></section>
+<section id="ready" class="panel" hidden></section>
+</main>
+<script>
+const D={cc:"Cloud concepts",ar:"Architecture & services",sc:"Security & identity",cg:"Cost & governance"};
+const Q=[
+{d:"cc",q:"A shop’s site gets 50× its normal traffic on sale days and almost none otherwise. Which cloud benefit fits best?",o:["Elasticity: capacity scales up and down with demand","Buying peak-sized servers up front","Manually ordering hardware before each sale","Running everything on one large machine"],e:"Elasticity lets you add capacity for the spike and release it afterwards, so you pay for what you use. The other options lock in cost or take too long to react."},
+{d:"cc",q:"Your team wants to deploy code without patching operating systems or managing servers. Which service model is closest?",o:["Platform as a Service (PaaS)","Infrastructure as a Service (IaaS)","On-premises virtualization","Colocation hosting"],e:"With PaaS the provider manages the OS and runtime; you manage the app and data. With IaaS you still patch the OS yourself."},
+{d:"cc",q:"Moving from buying servers to renting cloud resources shifts spending mainly from…",o:["Capital expenditure to operational expenditure","Operational expenditure to capital expenditure","Variable cost to fixed cost","Software cost to hardware cost"],e:"Upfront hardware purchases are CapEx. Pay-as-you-go cloud usage is OpEx, billed as you consume."},
+{d:"ar",q:"Which design best protects an app from the failure of a single datacenter inside one region?",o:["Spread instances across availability zones","Add more disks to one server","Use a larger virtual machine size","Keep a nightly backup on the same host"],e:"Availability zones are physically separate locations within a region, so one failing does not take down the others. Bigger or duplicated parts in one place share the same fate."},
+{d:"ar",q:"You need small pieces of code to run only when a file arrives, with no servers to manage. What fits?",o:["A serverless function","A dedicated virtual machine","A physical load balancer","A virtual network gateway"],e:"Serverless functions run on an event trigger and bill per execution. A VM would sit idle and need patching between files."},
+{d:"ar",q:"Where should you cheaply store millions of images and backups as unstructured data?",o:["Object (blob) storage","A relational database table","A virtual machine’s memory","A DNS zone"],e:"Object storage is built for large amounts of unstructured files at low cost. Relational tables suit structured rows, not big binary files."},
+{d:"sc",q:"A user enters a password and a code from their phone. What is this step proving?",o:["Authentication: who they are","Authorization: what they can do","Auditing: what they did","Accounting: what they cost"],e:"Authentication verifies identity. Authorization comes afterwards and decides which actions that identity may perform."},
+{d:"sc",q:"A contractor needs to restart VMs in one resource group only. Which approach follows least privilege?",o:["Assign a role scoped to that resource group","Make them an owner of the subscription","Share the admin account password","Give access to every resource group to avoid tickets"],e:"Least privilege means the minimum permissions at the narrowest scope that does the job. Broad roles or shared credentials add risk and remove accountability."},
+{d:"sc",q:"Using a firewall, identity checks and encryption together is an example of…",o:["Defense in depth","A single point of failure","Vertical scaling","Data sovereignty"],e:"Defense in depth layers several controls so that if one fails, others still protect the data."},
+{d:"cg",q:"Before deploying, you want a monthly cost estimate for a planned set of resources. Which tool helps?",o:["A pricing calculator","A resource lock","A role assignment","A service health alert"],e:"A pricing calculator estimates cost from the services and sizes you pick. Locks, roles and alerts do not produce estimates."},
+{d:"cg",q:"Tagging resources with a department name mainly helps you…",o:["Group and allocate costs by department","Make the resource faster","Encrypt the resource","Move it to another region"],e:"Tags are name/value labels used to organize resources and break down spend. They don’t change performance or security."},
+{d:"cg",q:"An organization wants to block anyone from creating resources outside approved regions. What fits best?",o:["A policy with a deny rule for unapproved regions","A budget alert","A resource tag","A larger support plan"],e:"Policies enforce rules at creation time. A budget alert only notifies after spending, and tags do not block anything."}];
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let store={log:[],runs:[]};
+try{const s=localStorage.getItem("cloudcheck-v1");if(s)store=JSON.parse(s)}catch(e){}
+const save=()=>{try{localStorage.setItem("cloudcheck-v1",JSON.stringify(store))}catch(e){}};
+let sel=new Set(Object.keys(D)),count=8,run=null;
+
+function setup(){
+ $("#practice").innerHTML=`<h2>Build a quiz</h2><div>Topics</div><div class="chips">${Object.entries(D).map(([k,v])=>`<button class="chip" data-d="${k}" aria-pressed="${sel.has(k)}">${v}</button>`).join("")}</div>
+ <div>Questions</div><div class="chips">${[4,8,12].map(n=>`<button class="chip" data-n="${n}" aria-pressed="${n==count}">${n}</button>`).join("")}</div>
+ <button class="btn" id="go">Start quiz</button>`;
+ document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const k=b.dataset.d;sel.has(k)?sel.delete(k):sel.add(k);if(!sel.size)sel.add(k);setup()});
+ document.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{count=+b.dataset.n;setup()});
+ $("#go").onclick=start;
+}
+function start(){
+ const pool=shuffle(Q.filter(x=>sel.has(x.d))).slice(0,count);
+ run={items:pool.map(x=>({...x,opts:shuffle(x.o.map((t,i)=>({t,c:i==0})))})),i:0,score:0,by:{}};show();
+}
+function show(){
+ const it=run.items[run.i];
+ $("#practice").innerHTML=`<div class="meta"><span>${D[it.d]}</span><span>Question ${run.i+1} of ${run.items.length}</span></div>
+ <div class="progress"><i style="width:${run.i/run.items.length*100}%"></i></div><h3 style="font-size:1.15rem;margin-bottom:12px">${it.q}</h3>
+ ${it.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o.t}</button>`).join("")}<div id="fb"></div>`;
+ document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+}
+function answer(k){
+ const it=run.items[run.i],ok=it.opts[k].c;
+ document.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;if(it.opts[j].c)b.classList.add("ok");else if(j==k)b.classList.add("bad")});
+ if(ok)run.score++;
+ (run.by[it.d]=run.by[it.d]||[0,0])[1]++;if(ok)run.by[it.d][0]++;
+ store.log.push({d:it.d,ok:ok?1:0});store.log=store.log.slice(-400);save();
+ const last=run.i==run.items.length-1;
+ $("#fb").innerHTML=`<div class="explain"><b>${ok?"Correct.":"Not quite."}</b> ${it.e}</div><p><button class="btn" id="nx">${last?"See results":"Next question"}</button></p>`;
+ $("#nx").onclick=()=>{last?finish():(run.i++,show())};$("#nx").focus();
+}
+function finish(){
+ const pct=Math.round(run.score/run.items.length*100);
+ store.runs.push({p:pct,t:Date.now()});store.runs=store.runs.slice(-12);save();
+ $("#practice").innerHTML=`<h2>Quiz complete</h2><div class="big">${run.score}/${run.items.length}</div><p>${pct>=80?"Strong result. Try a longer quiz or a weaker topic next.":"Review the explanations above, then retry the topics that cost you points."}</p>
+ ${Object.entries(run.by).map(([k,v])=>`<div class="row"><span>${D[k]}</span><span style="grid-column:2/4">${v[0]} of ${v[1]} correct</span></div>`).join("")}
+ <button class="btn" id="again">New quiz</button> <button class="btn ghost" id="rd">View readiness</button>`;
+ $("#again").onclick=setup;$("#rd").onclick=()=>tab(2);
+}
+function readiness(){
+ const el=$("#ready"),res={};
+ Object.keys(D).forEach(k=>{const l=store.log.filter(x=>x.d==k).slice(-15);res[k]=l.length?{p:Math.round(l.reduce((a,x)=>a+x.ok,0)/l.length*100),n:l.length}:null});
+ const seen=Object.values(res).filter(Boolean);
+ if(!seen.length){el.innerHTML=`<h2>Readiness</h2><p>No answers yet. Complete a quiz and your scores by topic will appear here.</p><button class="btn" id="g">Take a quiz</button>`;$("#g").onclick=()=>tab(1);return}
+ const avg=Math.round(seen.reduce((a,x)=>a+x.p,0)/seen.length),cov=seen.length==4;
+ const st=!cov?["Keep going",'var(--warn)','var(--warnbg)']:avg>=80?["Looks ready",'var(--ok)','var(--okbg)']:avg>=65?["Almost there",'var(--warn)','var(--warnbg)']:["Needs more practice",'var(--bad)','var(--badbg)'];
+ const weak=Object.entries(res).filter(([k,v])=>v).sort((a,b)=>a[1].p-b[1].p)[0],miss=Object.keys(D).filter(k=>!res[k]);
+ const tip=miss.length?`You haven’t practiced ${D[miss[0]]} yet. Cover every topic before judging readiness.`:`Focus next on ${D[weak[0]]} (${weak[1].p}%). Build a quiz with only that topic.`;
+ el.innerHTML=`<h2>Readiness</h2><div class="big">${avg}%</div><p><span class="status" style="color:${st[1]};background:${st[2]}">${st[0]}</span> <span style="color:var(--mute)">Average of your last 15 answers per topic. 80% or more across all four topics is a good target.</span></p>
+ ${Object.entries(D).map(([k,v])=>{const r=res[k];return `<div class="row"><span>${v}</span><div class="bar"><i style="width:${r?r.p:0}%;background:${r?(r.p>=80?'var(--ok)':r.p>=65?'var(--warn)':'var(--bad)'):'var(--line)'}"></i></div><b>${r?r.p+"%":"–"}</b></div>`}).join("")}
+ <div class="explain"><b>Next step.</b> ${tip}</div>
+ ${store.runs.length?`<h3 style="margin-top:20px">Recent quiz scores</h3><div class="hist" role="img" aria-label="Recent quiz scores">${store.runs.map(r=>`<i title="${r.p}%" style="height:${Math.max(r.p,4)}%"></i>`).join("")}</div>`:""}
+ <p><button class="btn ghost" id="rs">Reset my progress</button></p>`;
+ $("#rs").onclick=()=>{if(confirm("Clear all saved scores on this device?")){store={log:[],runs:[]};save();readiness()}};
+}
+function tab(n){
+ $("#t1").setAttribute("aria-selected",n==1);$("#t2").setAttribute("aria-selected",n==2);
+ $("#practice").hidden=n!=1;$("#ready").hidden=n!=2;if(n==2)readiness();
+}
+$("#t1").onclick=()=>tab(1);$("#t2").onclick=()=>tab(2);
+setup();
+</script></body></html>
